@@ -1,23 +1,22 @@
 // @ts-nocheck
 // TODO: Fix this when we turn strict mode on.
 import { pricingData } from "@/config/subscriptions";
-import { prisma } from "@/lib/db";
+import { users } from "@/drizzle/schema";
+import { db } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
 import { UserSubscriptionPlan } from "types";
 
 export async function getUserSubscriptionPlan(
   userId: string
 ): Promise<UserSubscriptionPlan> {
-  const user = await prisma.user.findFirst({
-    where: {
-      id: userId,
-    },
-    select: {
+  const user = await db.query.users.findFirst({
+    columns: {
       stripeSubscriptionId: true,
       stripeCurrentPeriodEnd: true,
       stripeCustomerId: true,
       stripePriceId: true,
     },
+    where: eq(users.id, userId),
   })
 
   if (!user) {

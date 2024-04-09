@@ -1,17 +1,7 @@
-import { PrismaClient } from "@prisma/client"
-import "server-only";
+/// Drizzle
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless"
+import * as schema from "@/drizzle/schema"
 
-declare global {
-  // eslint-disable-next-line no-var
-  var cachedPrisma: PrismaClient
-}
-
-export let prisma: PrismaClient
-if (process.env.NODE_ENV === "production") {
-  prisma = new PrismaClient()
-} else {
-  if (!global.cachedPrisma) {
-    global.cachedPrisma = new PrismaClient()
-  }
-  prisma = global.cachedPrisma
-}
+const sql = neon(process.env.DATABASE_URL!);
+export const db = drizzle(sql, {schema});
